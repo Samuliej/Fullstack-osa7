@@ -67,9 +67,9 @@ const Footer = () => (
 )
 
 const CreateNew = ({ addNew, setNotification }) => {
-  const content = useField('content')
-  const author = useField('author')
-  const info = useField('info')
+  const { reset: resetContent, ...content } = useField('content')
+  const { reset: resetAuthor, ...author } = useField('author')
+  const { reset: resetInfo, ...info } = useField('info')
 
   const navigate = useNavigate()
 
@@ -107,9 +107,9 @@ const CreateNew = ({ addNew, setNotification }) => {
         </div>
         <button type='submit'>create</button>
         <button type='reset' onClick={() => {
-          content.reset()
-          author.reset()
-          info.reset()
+          resetContent()
+          resetAuthor()
+          resetInfo()
         }}>reset</button>
       </form>
     </div>
