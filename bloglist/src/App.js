@@ -11,7 +11,7 @@ import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
 import { setError } from './reducers/errorReducer'
 import { setNotification } from './reducers/notificationReducer'
-import { initializeBlogs, setBlogs, createBlog } from './reducers/blogReducer'
+import { initializeBlogs, setBlogs, createBlog, like, removeBlog } from './reducers/blogReducer'
 
 const App = () => {
   const dispatch = useDispatch()
@@ -83,7 +83,7 @@ const App = () => {
         b.id === blog.id ? { ...b, likes: b.likes + 1 } : b
       )
       dispatch(setBlogs(updatedBlogs))
-      await blogService.like(blog)
+      dispatch(like(blog))
       dispatch(setNotification( { message: `You liked the ${blog.title} blog`, duration: 5 } ))
     } catch (exception) {
       console.log(exception.message)
@@ -93,13 +93,11 @@ const App = () => {
 
   const handleRemove = async (blog) => {
     try {
-      console.log('App.js remove funktiossa')
-      await blogService.remove(blog.id)
-      dispatch(setBlogs(blogs.filter((b) => b.id !== blog.id)))
-      dispatch(setNotification( { message: `Blog ${blog.title} by ${blog.author} removed successfully.`, duration: 5 } ))
+      dispatch(removeBlog(blog.id))
+      dispatch(setNotification( { message: `Blog '${blog.title}' removed succesfully`, duration: 5 } ))
     } catch (exception) {
-      console.log(exception.message)
-      dispatch(setError( { message: 'Something went wrong removing the blog', duration: 5 } ))
+      console.log(exception)
+      dispatch(setError( { message: `Something went wrong deleting the blog: ${blog.id}`, duration: 5 } ))
     }
   }
 
