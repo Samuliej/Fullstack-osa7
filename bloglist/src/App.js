@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -11,18 +11,19 @@ import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
 import { setError } from './reducers/errorReducer'
 import { setNotification } from './reducers/notificationReducer'
+import { initializeBlogs, setBlogs, createBlog } from './reducers/blogReducer'
 
 const App = () => {
   const dispatch = useDispatch()
   const blogFormRef = useRef()
-  const [blogs, setBlogs] = useState([])
+  const blogs = useSelector(state => state.blogs)
   // const [notificationMessage, setNotificationMessage] = useState(null)
   // const [errorMessage, setErrorMessage] = useState(null)
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
-  }, [])
+    dispatch(initializeBlogs())
+  }, [dispatch])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -81,7 +82,7 @@ const App = () => {
       const updatedBlogs = blogs.map((b) =>
         b.id === blog.id ? { ...b, likes: b.likes + 1 } : b
       )
-      setBlogs(updatedBlogs)
+      dispatch(setBlogs(updatedBlogs))
       await blogService.like(blog)
       dispatch(setNotification( { message: `You liked the ${blog.title} blog`, duration: 5 } ))
     } catch (exception) {
@@ -94,7 +95,7 @@ const App = () => {
     try {
       console.log('App.js remove funktiossa')
       await blogService.remove(blog.id)
-      setBlogs(blogs.filter((b) => b.id !== blog.id))
+      dispatch(setBlogs(blogs.filter((b) => b.id !== blog.id)))
       dispatch(setNotification( { message: `Blog ${blog.title} by ${blog.author} removed successfully.`, duration: 5 } ))
     } catch (exception) {
       console.log(exception.message)
@@ -111,9 +112,7 @@ const App = () => {
 
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility()
-    blogService.create(blogObject).then((returnedBlog) => {
-      setBlogs(blogs.concat(returnedBlog))
-    })
+    dispatch(createBlog(blogObject))
   }
 
   return (
