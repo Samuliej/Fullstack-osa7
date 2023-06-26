@@ -8,15 +8,15 @@ import Error from './components/Error'
 import './index.css'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
+import { useNotificationDispatch, useNotificationState } from './components/NotificationContext'
+import LoginForm from './components/LoginForm'
 
 const App = () => {
   const blogFormRef = useRef()
   const [blogs, setBlogs] = useState([])
-  const [notificationMessage, setNotificationMessage] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
-
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  // const [notificationMessage, setNotificationMessage] = useState(null)
+  const notification = useNotificationState()
+  const notificationDispatch = useNotificationDispatch()
   const [user, setUser] = useState(null)
 
   useEffect(() => {
@@ -32,9 +32,7 @@ const App = () => {
     }
   }, [])
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
-
+  const handleLogin = async (username, password) => {
     try {
       const user = await loginService.login({
         username,
@@ -44,14 +42,12 @@ const App = () => {
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
       setUser(user)
-      setUsername('')
-      setPassword('')
     } catch (exception) {
       console.log(exception)
-      setErrorMessage('wrong username or password')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      notificationDispatch({
+        type: 'SET_ERROR',
+        payload: 'Wrong username or password'
+      })
     }
   }
 
@@ -60,40 +56,11 @@ const App = () => {
     try {
       window.localStorage.clear()
       setUser(null)
-      setUsername('')
-      setPassword('')
     } catch (exception) {
       console.log(exception)
     }
   }
 
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        username
-        <input
-          id="username"
-          type="text"
-          value={username}
-          name="Username"
-          onChange={({ target }) => setUsername(target.value)}
-        />
-      </div>
-      <div>
-        password
-        <input
-          id="password"
-          type="password"
-          value={password}
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}
-        />
-      </div>
-      <button id="login-button" type="submit">
-        login
-      </button>
-    </form>
-  )
 
   const blogList = () => {
     const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
@@ -118,6 +85,10 @@ const App = () => {
       )
       setBlogs(updatedBlogs)
       await blogService.like(blog)
+      notificationDispatch({
+        type: 'SET_NOTIFICATION',
+        payload: `You liked the blog '${blog.title}'`
+      })
     } catch (exception) {
       console.log(exception.message)
     }
@@ -128,14 +99,16 @@ const App = () => {
       console.log('App.js remove funktiossa')
       await blogService.remove(blog.id)
       setBlogs(blogs.filter((b) => b.id !== blog.id))
-      setNotificationMessage(
-        `Blog ${blog.title} by ${blog.author} removed successfully.`
-      )
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000)
+      notificationDispatch({
+        type: 'SET_NOTIFICATION',
+        payload: `Blog '${blog.title}' removed succesfully`
+      })
     } catch (exception) {
       console.log(exception.message)
+      notificationDispatch({
+        type: 'SET_ERROR',
+        payload: 'Something went wrong removing the blog'
+      })
     }
   }
 
@@ -151,12 +124,10 @@ const App = () => {
 
     blogService.create(blogObject).then((returnedBlog) => {
       setBlogs(blogs.concat(returnedBlog))
-      setNotificationMessage(
-        `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
-      )
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000)
+      notificationDispatch({
+        type: 'SET_NOTIFICATION',
+        payload: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
+      })
     })
   }
 
@@ -165,16 +136,16 @@ const App = () => {
       {!user && (
         <div>
           <h1>log in to application</h1>
-          <Notification message={notificationMessage} />
-          <Error message={errorMessage} />
-          {loginForm()}
+          {notification && notification.type === 'notification' && <Notification message={notification.message} />}
+          {notification && notification.type === 'error' && <Error message={notification.message} />}
+          <LoginForm handleLogin={handleLogin} />
         </div>
       )}
       {user && (
         <div>
           <h1>blogs</h1>
-          <Notification message={notificationMessage} />
-          <Error message={errorMessage} />
+          {notification && notification.type === 'notification' && <Notification message={notification.message} />}
+          {notification && notification.type === 'error' && <Error message={notification.message} />}
           <p>
             {user.name} logged in
             <button onClick={handleLogout}>logout</button>
