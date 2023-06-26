@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { setNotification } from '../reducers/notificationReducer'
+import { useDispatch } from 'react-redux'
+import { setError } from '../reducers/errorReducer'
 
 const BlogForm = ({ createBlog }) => {
   const [newBlogTitle, setNewBlogTitle] = useState('')
@@ -6,19 +9,31 @@ const BlogForm = ({ createBlog }) => {
   const [newBlogUrl, setNewBlogUrl] = useState('')
   const [newBlogUser, setNewBlogUser] = useState(null)
 
-  const addBlog = (event) => {
-    event.preventDefault()
-    createBlog({
-      title: newBlogTitle,
-      author: newBlogAuthor,
-      url: newBlogUrl,
-      user: newBlogUser,
-    })
+  const dispatch = useDispatch()
 
-    setNewBlogTitle('')
-    setNewBlogAuthor('')
-    setNewBlogUrl('')
-    setNewBlogUser(null)
+  const addBlog = (event) => {
+
+    event.preventDefault()
+
+    if (!newBlogTitle || !newBlogAuthor) {
+      console.log('tyhjää täynnä')
+      dispatch(setError({ message: 'Title or Author field empty', duration: 5 }))
+    } else {
+
+      event.preventDefault()
+      createBlog({
+        title: newBlogTitle,
+        author: newBlogAuthor,
+        url: newBlogUrl,
+        user: newBlogUser,
+      })
+
+      dispatch(setNotification( { message: `Blog '${newBlogTitle} added`, duration: 5 } ))
+      setNewBlogTitle('')
+      setNewBlogAuthor('')
+      setNewBlogUrl('')
+      setNewBlogUser(null)
+    }
   }
 
   return (
