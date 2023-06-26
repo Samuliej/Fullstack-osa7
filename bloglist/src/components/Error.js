@@ -6,9 +6,6 @@ const Error = () => {
   const dispatch = useDispatch()
   const error = useSelector(state => state.error)
 
-  console.log('erroriin tultu')
-  console.log(error)
-
   useEffect(() => {
     if (error && error.duration) {
       const timeout = setTimeout(() => {
@@ -22,8 +19,6 @@ const Error = () => {
   if (!error) {
     return <div className="empty"></div>
   } else if (error && error.message) {
-    console.log(`Notification ${error}`)
-    console.log(`Notification message ${error.message}`)
     return <div className="error">{error.message}</div>
   }
 }

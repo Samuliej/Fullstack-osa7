@@ -19,9 +19,6 @@ const Notification = () => {
   if (!notification) {
     return <div className="empty"></div>
   } else if (notification && notification.message) {
-
-    console.log(`Notification ${notification}`)
-    console.log(`Notification message ${notification.message}`)
     return <div className="notif">{notification.message}</div>
   }
 }

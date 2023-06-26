@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
@@ -12,14 +12,13 @@ import LoginForm from './components/LoginForm'
 import { setError } from './reducers/errorReducer'
 import { setNotification } from './reducers/notificationReducer'
 import { initializeBlogs, setBlogs, createBlog, like, removeBlog } from './reducers/blogReducer'
+import { setUser } from './reducers/userReducer'
 
 const App = () => {
   const dispatch = useDispatch()
   const blogFormRef = useRef()
   const blogs = useSelector(state => state.blogs)
-  // const [notificationMessage, setNotificationMessage] = useState(null)
-  // const [errorMessage, setErrorMessage] = useState(null)
-  const [user, setUser] = useState(null)
+  const user = useSelector(state => state.user)
 
   useEffect(() => {
     dispatch(initializeBlogs())
@@ -29,7 +28,7 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
+      dispatch(setUser(user))
       blogService.setToken(user.token)
     }
   }, [])
@@ -43,7 +42,7 @@ const App = () => {
 
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
-      setUser(user)
+      dispatch(setUser(user))
     } catch (exception) {
       console.log(exception)
       dispatch(setError({ message: 'Wrong username or password', duration: 5 }))
@@ -54,7 +53,7 @@ const App = () => {
     event.preventDefault()
     try {
       window.localStorage.clear()
-      setUser(null)
+      dispatch(setUser(null))
     } catch (exception) {
       console.log(exception)
     }
@@ -75,8 +74,6 @@ const App = () => {
   }
 
   const handleLike = async (blog) => {
-    console.log('handleLikessa App.js')
-    console.log(blog)
     try {
       // Päivitetään lokaalisti, koska tykkäys tuli turhan hitaasti
       const updatedBlogs = blogs.map((b) =>

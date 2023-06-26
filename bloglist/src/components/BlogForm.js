@@ -16,7 +16,6 @@ const BlogForm = () => {
     event.preventDefault()
 
     if (!newBlogTitle || !newBlogAuthor) {
-      console.log('tyhjää täynnä')
       dispatch(setError({ message: 'Title or Author field empty', duration: 5 }))
     } else {
       dispatch(createBlog({

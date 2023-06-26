@@ -36,7 +36,6 @@ const remove = async (blogId) => {
 
   const deletePath = `${baseUrl}/${blogId}`
   try {
-    console.log('blogs.js remove funktiossa')
     const response = await axios.delete(deletePath, config)
     return response.data
   } catch (exception) {
@@ -48,9 +47,6 @@ const create = async (newObject) => {
   const config = {
     headers: { Authorization: token },
   }
-
-  console.log('blogs.js create')
-  console.log(config)
 
   const response = await axios.post(baseUrl, newObject, config)
   return response.data
