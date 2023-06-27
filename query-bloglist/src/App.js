@@ -1,23 +1,23 @@
-import { useState, /*useEffect,*/ useRef } from 'react'
+import {  useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { getBlogs, createBlog, setBlogToken, likeBlog, removeBlog } from './queries'
-
 import Blog from './components/Blog'
-import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import Error from './components/Error'
-import './index.css'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
 import { useNotificationDispatch, useNotificationState } from './components/NotificationContext'
 import LoginForm from './components/LoginForm'
+import { useUserDispatch, useUserState } from './components/UserContext'
+import './index.css'
 
 const App = () => {
   const blogFormRef = useRef()
   const notification = useNotificationState()
   const notificationDispatch = useNotificationDispatch()
-  const [user, setUser] = useState(null)
+  const user = useUserState()
+  const userDispatch = useUserDispatch()
   const queryClient = useQueryClient()
 
   const createBlogMutation = useMutation(createBlog, {
@@ -65,18 +65,6 @@ const App = () => {
     return <div>Blog service unavailable</div>
   }
 
-  // Tämä useEffect jostain syystä rikkoo apin totaalisesti,
-  // joten jätän sen tässä vielä kokonaan käyttämättä.
-  // ja asetan tokenin uutta blogia luodessa
-  /*useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      setToken(user.token)
-    }
-  }, [])*/
-
   const handleLogin = async (username, password) => {
     try {
       const user = await loginService.login({
@@ -85,8 +73,11 @@ const App = () => {
       })
 
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
-      blogService.setToken(user.token)
-      setUser(user)
+      setBlogToken(user.token)
+      userDispatch({
+        type: 'SET_USER',
+        payload: user
+      })
     } catch (exception) {
       console.log(exception)
       notificationDispatch({
@@ -100,7 +91,9 @@ const App = () => {
     event.preventDefault()
     try {
       window.localStorage.clear()
-      setUser(null)
+      userDispatch({
+        type: 'CLEAR_USER'
+      })
     } catch (exception) {
       console.log(exception)
     }
@@ -125,16 +118,10 @@ const App = () => {
   }
 
   const handleRemove = (blog) => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setBlogToken(user.token)
-    }
     blogFormRef.current.toggleVisibility()
     removeBlogMutation.mutate(blog)
   }
 
-  // Hoidettiin 5.5 yhteydessä
   const blogForm = () => (
     <Togglable buttonLabel="new blog" ref={blogFormRef}>
       <BlogForm createBlog={addBlog} />
@@ -142,11 +129,6 @@ const App = () => {
   )
 
   const addBlog = async (blogObject) => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setBlogToken(user.token)
-    }
     blogFormRef.current.toggleVisibility()
     createBlogMutation.mutate(blogObject)
   }
