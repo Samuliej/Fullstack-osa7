@@ -43,7 +43,7 @@ const App = () => {
 
   const removeBlogMutation = useMutation(removeBlog, {
     onSuccess: () => {
-      queryClient.invalidateQueries()
+      queryClient.invalidateQueries('blogs')
       notificationDispatch({
         type: 'SET_NOTIFICATION',
         payload: 'Blog removed succesfully'
