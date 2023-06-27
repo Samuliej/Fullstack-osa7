@@ -12,12 +12,11 @@ import LoginForm from './components/LoginForm'
 import Users from './components/Users'
 import User from './components/User'
 import { setError } from './reducers/errorReducer'
-import { setNotification } from './reducers/notificationReducer'
-import { initializeBlogs, setBlogs, createBlog, like, removeBlog } from './reducers/blogReducer'
+import { initializeBlogs,  createBlog } from './reducers/blogReducer'
 import { setUser } from './reducers/userReducer'
 import {
   BrowserRouter as Router,
-  Routes, Route
+  Routes, Route, Link
 } from 'react-router-dom'
 
 const App = () => {
@@ -67,44 +66,22 @@ const App = () => {
 
 
   const blogList = () => {
+    const blogStyle = {
+      paddingTop: 10,
+      paddingLeft: 2,
+      border: 'solid',
+      borderWidth: 1,
+      marginBottom: 5,
+    }
+
     const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
     return sortedBlogs.map((blog) => (
-      <Blog
-        key={blog.id}
-        blog={blog}
-        handleLike={handleLike}
-        handleRemove={handleRemove}
-        user={user}
-      />
+      <Link key={blog.id} to={`/blogs/${blog.id}`}>
+        <div style={blogStyle}>{blog.title}  {blog.author}</div>
+      </Link>
     ))
   }
 
-  const handleLike = async (blog) => {
-    try {
-      // Päivitetään lokaalisti, koska tykkäys tuli turhan hitaasti
-      const updatedBlogs = blogs.map((b) =>
-        b.id === blog.id ? { ...b, likes: b.likes + 1 } : b
-      )
-      dispatch(setBlogs(updatedBlogs))
-      dispatch(like(blog))
-      dispatch(setNotification( { message: `You liked the ${blog.title} blog`, duration: 5 } ))
-    } catch (exception) {
-      console.log(exception.message)
-      dispatch(setError( { message: 'Something went wrong liking the blog', duration: 5 } ))
-    }
-  }
-
-  const handleRemove = async (blog) => {
-    try {
-      dispatch(removeBlog(blog.id))
-      dispatch(setNotification( { message: `Blog '${blog.title}' removed succesfully`, duration: 5 } ))
-    } catch (exception) {
-      console.log(exception)
-      dispatch(setError( { message: `Something went wrong deleting the blog: ${blog.id}`, duration: 5 } ))
-    }
-  }
-
-  // Hoidettiin 5.5 yhteydessä
   const blogForm = () => (
     <Togglable buttonLabel="new blog" ref={blogFormRef}>
       <BlogForm createBlog={addBlog} />
@@ -140,6 +117,7 @@ const App = () => {
             <Routes>
               <Route path="/users" element={<Users />} />
               <Route path="/users/:id" element={<User />} />
+              <Route path='/blogs/:id' element={<Blog />} />
               <Route path="/" element={
                 <div>
                   {blogForm()}

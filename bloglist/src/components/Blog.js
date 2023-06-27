@@ -1,56 +1,72 @@
-import PropTypes from 'prop-types'
-import { useState } from 'react'
+import { useParams } from 'react-router-dom'
+import {  useDispatch, useSelector } from 'react-redux'
+import { setBlogs, like, removeBlog } from '../reducers/blogReducer'
+import { setNotification } from '../reducers/notificationReducer'
+import { setError } from '../reducers/errorReducer'
 
-const Blog = ({ blog, handleLike, handleRemove, user }) => {
-  const [visible, setVisible] = useState(false)
-  const { user: blogUser } = blog
+const Blog = () => {
+  const dispatch = useDispatch()
+  const { id } = useParams()
+  const blogs = useSelector(state => state.blogs)
+  const user = useSelector(state => state.user)
+  let blogUser = null
 
-  Blog.propTypes = {
-    handleLike: PropTypes.func.isRequired,
-    handleRemove: PropTypes.func.isRequired,
-    blog: PropTypes.object.isRequired,
+  const currentBlog = blogs.find(b => b.id === id)
+  if (currentBlog) {
+    blogUser = currentBlog.user
   }
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5,
+
+  if (!currentBlog) {
+    return <div>Blog not found or deleted</div>
   }
 
-  const toggleVisibility = () => {
-    setVisible(!visible)
+  const handleLike = async (blog) => {
+    try {
+      // Päivitetään lokaalisti, koska tykkäys tuli turhan hitaasti
+      const updatedBlogs = blogs.map((b) =>
+        b.id === blog.id ? { ...b, likes: b.likes + 1 } : b
+      )
+      dispatch(setBlogs(updatedBlogs))
+      dispatch(like(blog))
+      dispatch(setNotification( { message: `You liked the ${blog.title} blog`, duration: 5 } ))
+    } catch (exception) {
+      console.log(exception.message)
+      dispatch(setError( { message: 'Something went wrong liking the blog', duration: 5 } ))
+    }
   }
 
-  const onLikeClick = () => {
-    handleLike(blog)
+  const onClickLike = () => {
+    handleLike(currentBlog)
   }
+
 
   const onClickRemove = () => {
-    if (window.confirm(`Remove blog: ${blog.title}?`)) handleRemove(blog)
+    if (window.confirm(`Remove blog: ${currentBlog.title}?`)) handleRemove(currentBlog)
+  }
+
+
+  const handleRemove = async (blog) => {
+    try {
+      dispatch(removeBlog(blog.id))
+      dispatch(setNotification( { message: `Blog '${blog.title}' removed succesfully`, duration: 5 } ))
+    } catch (exception) {
+      console.log(exception)
+      dispatch(setError( { message: `Something went wrong deleting the blog: ${blog.id}`, duration: 5 } ))
+    }
   }
 
   return (
-    <div style={blogStyle} className="blogDiv">
-      <div className="untoggledContent">
-        {blog.title} {blog.author}{' '}
-        <button onClick={toggleVisibility}>{visible ? 'hide' : 'view'}</button>
+    <div>
+      <h2>{currentBlog.title} by {currentBlog.author}</h2>
+      <div><a href='#'>{currentBlog.url}</a></div>
+      <div>{currentBlog.likes} likes <button onClick={onClickLike}>like</button></div>
+      <div>added by {currentBlog.user.name}</div>
+      <div>
+        {user && blogUser && user.name === blogUser.name && (
+          <button onClick={onClickRemove}>remove</button>
+        )}
       </div>
-      {visible && (
-        <div className="toggledContent">
-          {blog.url} <br />
-          {blog.likes}{' '}
-          <button id="like-button" onClick={onLikeClick}>
-            like
-          </button>{' '}
-          <br />
-          {blog.user.name} <br />
-          {user && blogUser && user.name === blogUser.name && (
-            <button onClick={onClickRemove}>remove</button>
-          )}
-        </div>
-      )}
     </div>
   )
 }
