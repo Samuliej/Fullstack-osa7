@@ -9,7 +9,7 @@ build
 /coverage
 
 /build
-
+*.test.*
 .DS_Store
 .env.local
 .env.development.local

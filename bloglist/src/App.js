@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Blog from './components/Blog'
+import Blogs from './components/Blogs'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
@@ -22,7 +23,6 @@ import {
 const App = () => {
   const dispatch = useDispatch()
   const blogFormRef = useRef()
-  const blogs = useSelector(state => state.blogs)
   const user = useSelector(state => state.user)
 
   useEffect(() => {
@@ -65,23 +65,6 @@ const App = () => {
   }
 
 
-  const blogList = () => {
-    const blogStyle = {
-      paddingTop: 10,
-      paddingLeft: 2,
-      border: 'solid',
-      borderWidth: 1,
-      marginBottom: 5,
-    }
-
-    const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
-    return sortedBlogs.map((blog) => (
-      <Link key={blog.id} to={`/blogs/${blog.id}`}>
-        <div style={blogStyle}>{blog.title}  {blog.author}</div>
-      </Link>
-    ))
-  }
-
   const blogForm = () => (
     <Togglable buttonLabel="new blog" ref={blogFormRef}>
       <BlogForm createBlog={addBlog} />
@@ -107,21 +90,31 @@ const App = () => {
 
         {user && (
           <div>
+            <div style={{ backgroundColor: 'lightGreen' }}>
+              <div style={{ display: 'inline-block' }}><Link to={'/blogs'}>blogs</Link></div>
+              <div style={{ display: 'inline-block', marginLeft: '10px' }}><Link to={'/users'}>users</Link></div>
+              <div style={{ display: 'inline-block', marginLeft: '10px' }}>
+                <em>{user.name} logged in</em>
+                <button style={{ marginLeft: '10px' }} onClick={handleLogout}>logout</button>
+              </div>
+            </div>
             <h1>blogs</h1>
             <Notification />
             <Error />
-            <p>
-              {user.name} logged in
-              <button onClick={handleLogout}>logout</button>
-            </p>
             <Routes>
               <Route path="/users" element={<Users />} />
               <Route path="/users/:id" element={<User />} />
               <Route path='/blogs/:id' element={<Blog />} />
+              <Route path='/blogs' element={
+                <div>
+                  {blogForm()}
+                  <Blogs />
+                </div>
+              }/>
               <Route path="/" element={
                 <div>
                   {blogForm()}
-                  {blogList()}
+                  {<Blogs />}
                 </div>}
               />
             </Routes>
