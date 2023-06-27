@@ -56,6 +56,7 @@ const Blog = () => {
     }
   }
 
+
   return (
     <div>
       <h2>{currentBlog.title} by {currentBlog.author}</h2>
@@ -67,6 +68,13 @@ const Blog = () => {
           <button onClick={onClickRemove}>remove</button>
         )}
       </div>
+      <br />
+      <h3>comments</h3>
+      <ul>
+        {currentBlog.comments.map(comment => (
+          <li key={comment.id}>{comment.content}</li>
+        ))}
+      </ul>
     </div>
   )
 }
