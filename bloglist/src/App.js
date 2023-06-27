@@ -10,11 +10,11 @@ import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
 import Users from './components/Users'
+import User from './components/User'
 import { setError } from './reducers/errorReducer'
 import { setNotification } from './reducers/notificationReducer'
 import { initializeBlogs, setBlogs, createBlog, like, removeBlog } from './reducers/blogReducer'
 import { setUser } from './reducers/userReducer'
-
 import {
   BrowserRouter as Router,
   Routes, Route
@@ -139,6 +139,7 @@ const App = () => {
             </p>
             <Routes>
               <Route path="/users" element={<Users />} />
+              <Route path="/users/:id" element={<User />} />
               <Route path="/" element={
                 <div>
                   {blogForm()}

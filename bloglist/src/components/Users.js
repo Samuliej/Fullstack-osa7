@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { setUsers } from '../reducers/usersReducer'
 import { useEffect } from 'react'
 import userService from '../services/users'
+import { Link } from 'react-router-dom'
 
 const Users = () => {
   const users = useSelector(state => state.users)
@@ -25,7 +26,11 @@ const Users = () => {
       <div style={{ display: 'table' }}>
         {users.map(user => (
           <div key={user.id} style={{ display: 'table-row' }}>
-            <div style={{ display: 'table-cell', width: '200px' }}>{user.name}</div>
+            <Link
+              style={{ display: 'table-cell', width: '200px' }}
+              to={`/users/${user.id}`}>
+              {user.name}
+            </Link>
             <div style={{ display: 'table-cell', paddingLeft: '10px' }}>{user.blogs.length}</div>
           </div>
         ))}
