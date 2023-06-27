@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, /*useEffect,*/ useRef } from 'react'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { getBlogs, createBlog, setBlogToken } from './queries'
 
 import Blog from './components/Blog'
 import blogService from './services/blogs'
@@ -13,24 +15,48 @@ import LoginForm from './components/LoginForm'
 
 const App = () => {
   const blogFormRef = useRef()
-  const [blogs, setBlogs] = useState([])
+  // const [blogs, setBlogs] = useState([])
   // const [notificationMessage, setNotificationMessage] = useState(null)
   const notification = useNotificationState()
   const notificationDispatch = useNotificationDispatch()
   const [user, setUser] = useState(null)
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
-  }, [])
+  const createBlogMutation = useMutation(createBlog, {
+    onSuccess: (returnedBlog) => {
+      queryClient.setQueryData('blogs', (oldBlogs) => [...oldBlogs, returnedBlog])
+      notificationDispatch({
+        type: 'SET_NOTIFICATION',
+        payload: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
+      })
+    }
+  })
 
-  useEffect(() => {
+  const result = useQuery(
+    'blogs', getBlogs,
+    {
+      refetchOnWindowFocus: false,
+      retry: 1
+    }
+  )
+
+  const blogs = result.data
+
+  if (result.isLoading) {
+    return <div>Blog service unavailable</div>
+  }
+
+  // Tämä useEffect jostain syystä rikkoo apin totaalisesti,
+  // joten jätän sen tässä vielä kokonaan käyttämättä.
+  // ja asetan tokenin uutta blogia luodessa
+  /*useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
-      blogService.setToken(user.token)
+      setToken(user.token)
     }
-  }, [])
+  }, [])*/
 
   const handleLogin = async (username, password) => {
     try {
@@ -80,10 +106,10 @@ const App = () => {
     console.log(blog)
     try {
       // Päivitetään lokaalisti, koska tykkäys tuli turhan hitaasti
-      const updatedBlogs = blogs.map((b) =>
+      /*const updatedBlogs = blogs.map((b) =>
         b.id === blog.id ? { ...b, likes: b.likes + 1 } : b
-      )
-      setBlogs(updatedBlogs)
+      ) */
+      // setBlogs(updatedBlogs)
       await blogService.like(blog)
       notificationDispatch({
         type: 'SET_NOTIFICATION',
@@ -98,7 +124,7 @@ const App = () => {
     try {
       console.log('App.js remove funktiossa')
       await blogService.remove(blog.id)
-      setBlogs(blogs.filter((b) => b.id !== blog.id))
+      //setBlogs(blogs.filter((b) => b.id !== blog.id))
       notificationDispatch({
         type: 'SET_NOTIFICATION',
         payload: `Blog '${blog.title}' removed succesfully`
@@ -119,16 +145,14 @@ const App = () => {
     </Togglable>
   )
 
-  const addBlog = (blogObject) => {
+  const addBlog = async (blogObject) => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setBlogToken(user.token)
+    }
     blogFormRef.current.toggleVisibility()
-
-    blogService.create(blogObject).then((returnedBlog) => {
-      setBlogs(blogs.concat(returnedBlog))
-      notificationDispatch({
-        type: 'SET_NOTIFICATION',
-        payload: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
-      })
-    })
+    createBlogMutation.mutate(blogObject)
   }
 
   return (

@@ -7,27 +7,3 @@ h2 {
   color: green;
   font-style: italic;
 }
-
-.notif {
-  color: black;
-  background-color: lightgreen;
-  font-size: 20px;
-  font-style: solid;
-  border-style: solid;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.error {
-  color: black;
-  background-color: red;
-  font-size: 20px;
-  font-style: solid;
-  border-style: solid;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
-  text-align: center;
-}
