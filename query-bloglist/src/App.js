@@ -1,6 +1,6 @@
 import { useState, /*useEffect,*/ useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { getBlogs, createBlog, setBlogToken } from './queries'
+import { getBlogs, createBlog, setBlogToken, likeBlog, removeBlog } from './queries'
 
 import Blog from './components/Blog'
 import blogService from './services/blogs'
@@ -15,8 +15,6 @@ import LoginForm from './components/LoginForm'
 
 const App = () => {
   const blogFormRef = useRef()
-  // const [blogs, setBlogs] = useState([])
-  // const [notificationMessage, setNotificationMessage] = useState(null)
   const notification = useNotificationState()
   const notificationDispatch = useNotificationDispatch()
   const [user, setUser] = useState(null)
@@ -28,6 +26,27 @@ const App = () => {
       notificationDispatch({
         type: 'SET_NOTIFICATION',
         payload: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
+      })
+    }
+  })
+
+  const likeBlogMutation = useMutation(likeBlog, {
+    onSuccess: (updatedBlog) => {
+      queryClient.invalidateQueries('blogs')
+      notificationDispatch({
+        type: 'SET_NOTIFICATION',
+        payload: `You liked the blog '${updatedBlog.title}'`
+      })
+    }
+
+  })
+
+  const removeBlogMutation = useMutation(removeBlog, {
+    onSuccess: () => {
+      queryClient.invalidateQueries()
+      notificationDispatch({
+        type: 'SET_NOTIFICATION',
+        payload: 'Blog removed succesfully'
       })
     }
   })
@@ -101,41 +120,18 @@ const App = () => {
     ))
   }
 
-  const handleLike = async (blog) => {
-    console.log('handleLikessa App.js')
-    console.log(blog)
-    try {
-      // Päivitetään lokaalisti, koska tykkäys tuli turhan hitaasti
-      /*const updatedBlogs = blogs.map((b) =>
-        b.id === blog.id ? { ...b, likes: b.likes + 1 } : b
-      ) */
-      // setBlogs(updatedBlogs)
-      await blogService.like(blog)
-      notificationDispatch({
-        type: 'SET_NOTIFICATION',
-        payload: `You liked the blog '${blog.title}'`
-      })
-    } catch (exception) {
-      console.log(exception.message)
-    }
+  const handleLike = (blog) => {
+    likeBlogMutation.mutate({ ...blog, likes: blog.likes + 1 })
   }
 
-  const handleRemove = async (blog) => {
-    try {
-      console.log('App.js remove funktiossa')
-      await blogService.remove(blog.id)
-      //setBlogs(blogs.filter((b) => b.id !== blog.id))
-      notificationDispatch({
-        type: 'SET_NOTIFICATION',
-        payload: `Blog '${blog.title}' removed succesfully`
-      })
-    } catch (exception) {
-      console.log(exception.message)
-      notificationDispatch({
-        type: 'SET_ERROR',
-        payload: 'Something went wrong removing the blog'
-      })
+  const handleRemove = (blog) => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setBlogToken(user.token)
     }
+    blogFormRef.current.toggleVisibility()
+    removeBlogMutation.mutate(blog)
   }
 
   // Hoidettiin 5.5 yhteydessä

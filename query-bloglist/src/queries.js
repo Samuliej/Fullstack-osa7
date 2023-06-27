@@ -12,15 +12,8 @@ export const getBlogs = () => {
   return request.then((response) => response.data)
 }
 
-export const like = async (blog) => {
-  const updatePath = `${baseUrl}/${blog.id}`
-  const likedBlog = {
-    title: blog.title,
-    author: blog.author,
-    url: blog.url,
-    likes: blog.likes + 1,
-    user: blog.user.id,
-  }
+export const likeBlog = async (likedBlog) => {
+  const updatePath = `${baseUrl}/${likedBlog.id}`
   try {
     const response = await axios.put(updatePath, likedBlog)
     return response.data
@@ -29,19 +22,15 @@ export const like = async (blog) => {
   }
 }
 
-export const remove = async (blogId) => {
+export const removeBlog = async (blog) => {
   const config = {
     headers: { Authorization: token },
   }
 
-  const deletePath = `${baseUrl}/${blogId}`
-  try {
-    console.log('blogs.js remove funktiossa')
-    const response = await axios.delete(deletePath, config)
-    return response.data
-  } catch (exception) {
-    console.log(exception.message)
-  }
+  const deletePath = `${baseUrl}/${blog.id}`
+  const response = await axios.delete(deletePath, config)
+  console.log('mikä siellä lymyää: ', response.data)
+  return response.data
 }
 
 export const createBlog = async (newObject) => {
