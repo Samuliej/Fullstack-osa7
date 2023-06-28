@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { setBlogs, like, remove, comment } from '../reducers/blogReducer'
 import { setNotification } from '../reducers/notificationReducer'
@@ -8,6 +8,7 @@ import { Button, Form } from 'react-bootstrap'
 
 const Blog = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { id } = useParams()
   const blogs = useSelector(state => state.blogs)
   const user = useSelector(state => state.user)
@@ -73,6 +74,7 @@ const Blog = () => {
     try {
       dispatch(remove(blog.id))
       dispatch(setNotification( { message: `Blog '${blog.title}' removed succesfully`, duration: 5 } ))
+      navigate('/blogs')
     } catch (exception) {
       console.log(exception)
       dispatch(setError( { message: `Something went wrong deleting the blog: ${blog.id}`, duration: 5 } ))
