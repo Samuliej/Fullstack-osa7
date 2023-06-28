@@ -13,7 +13,7 @@ import LoginForm from './components/LoginForm'
 import Users from './components/Users'
 import User from './components/User'
 import { setError } from './reducers/errorReducer'
-import { initializeBlogs,  createBlog } from './reducers/blogReducer'
+import { initialize,  create } from './reducers/blogReducer'
 import { setUser } from './reducers/userReducer'
 import {
   BrowserRouter as Router,
@@ -26,7 +26,7 @@ const App = () => {
   const user = useSelector(state => state.user)
 
   useEffect(() => {
-    dispatch(initializeBlogs())
+    dispatch(initialize())
   }, [dispatch])
 
   useEffect(() => {
@@ -73,7 +73,7 @@ const App = () => {
 
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility()
-    dispatch(createBlog(blogObject))
+    dispatch(create(blogObject))
   }
 
   return (

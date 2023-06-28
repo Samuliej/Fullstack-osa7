@@ -17,8 +17,6 @@ const Users = () => {
     fetchUsers()
   }, [dispatch])
 
-  console.log('Users.js', users)
-
   return (
     <div>
       <h2>Users</h2>

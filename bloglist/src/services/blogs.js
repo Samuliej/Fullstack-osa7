@@ -29,6 +29,16 @@ const like = async (blog) => {
   }
 }
 
+const comment = async (blog, comment) => {
+  const updatePath = `${baseUrl}/${blog.id}/comments`
+  try {
+    const response = await axios.post(updatePath, { content: comment } )
+    return response.data
+  } catch (exception) {
+    console.log(exception)
+  }
+}
+
 const remove = async (blogId) => {
   const config = {
     headers: { Authorization: token },
@@ -52,4 +62,4 @@ const create = async (newObject) => {
   return response.data
 }
 
-export default { getAll, setToken, create, like, remove }
+export default { getAll, setToken, create, like, remove, comment }

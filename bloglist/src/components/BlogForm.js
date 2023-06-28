@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { setNotification } from '../reducers/notificationReducer'
 import { useDispatch } from 'react-redux'
 import { setError } from '../reducers/errorReducer'
-import { createBlog } from '../reducers/blogReducer'
+import { create } from '../reducers/blogReducer'
 
 const BlogForm = () => {
   const [newBlogTitle, setNewBlogTitle] = useState('')
@@ -18,7 +18,7 @@ const BlogForm = () => {
     if (!newBlogTitle || !newBlogAuthor) {
       dispatch(setError({ message: 'Title or Author field empty', duration: 5 }))
     } else {
-      dispatch(createBlog({
+      dispatch(create({
         title: newBlogTitle,
         author: newBlogAuthor,
         url: newBlogUrl
