@@ -1,6 +1,17 @@
 h1, h2, h3 {
-  color: green;
-  font-style: italic;
+  color: black;
+}
+
+.navlink {
+  color: #FFF;
+  text-decoration: none;
+}
+.navlink:hover {
+   color: #5B7B7A;
+}
+
+body {
+  flex-grow: 1;
 }
 
 .notif {

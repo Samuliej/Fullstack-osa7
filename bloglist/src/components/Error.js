@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { clearError } from '../reducers/errorReducer'
+import { Alert } from 'react-bootstrap'
 
 const Error = () => {
   const dispatch = useDispatch()
@@ -19,7 +20,11 @@ const Error = () => {
   if (!error) {
     return <div className="empty"></div>
   } else if (error && error.message) {
-    return <div className="error">{error.message}</div>
+    return (
+      <Alert variant='danger'>
+        {error.message}
+      </Alert>
+    )
   }
 }
 

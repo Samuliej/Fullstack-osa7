@@ -3,6 +3,7 @@ import { setUsers } from '../reducers/usersReducer'
 import { useEffect } from 'react'
 import userService from '../services/users'
 import { Link } from 'react-router-dom'
+import { Table } from 'react-bootstrap'
 
 const Users = () => {
   const users = useSelector(state => state.users)
@@ -20,19 +21,23 @@ const Users = () => {
   return (
     <div>
       <h2>Users</h2>
-      <div style={{ marginLeft: '210px' }}><strong>blogs created</strong></div>
-      <div style={{ display: 'table' }}>
-        {users.map(user => (
-          <div key={user.id} style={{ display: 'table-row' }}>
-            <Link
-              style={{ display: 'table-cell', width: '200px' }}
-              to={`/users/${user.id}`}>
-              {user.name}
-            </Link>
-            <div style={{ display: 'table-cell', paddingLeft: '10px' }}>{user.blogs.length}</div>
-          </div>
-        ))}
-      </div>
+      <div style={{ textAlign: 'right', marginRight: '60px' }}><strong>Blogs created</strong></div>
+      <Table striped>
+        <tbody>
+          {users.map(user =>
+            <tr key={user.id}>
+              <td>
+                <Link
+                  to={`/users/${user.id}`}>
+                  {user.name}
+                </Link>
+              </td>
+              <td>
+                {user.blogs.length}
+              </td>
+            </tr>)}
+        </tbody>
+      </Table>
     </div>
   )
 }

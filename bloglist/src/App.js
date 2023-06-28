@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Blog from './components/Blog'
 import Blogs from './components/Blogs'
@@ -7,22 +7,22 @@ import loginService from './services/login'
 import Notification from './components/Notification'
 import Error from './components/Error'
 import './index.css'
-import Togglable from './components/Togglable'
-import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
 import Users from './components/Users'
 import User from './components/User'
 import { setError } from './reducers/errorReducer'
-import { initialize,  create } from './reducers/blogReducer'
+import { initialize } from './reducers/blogReducer'
 import { setUser } from './reducers/userReducer'
 import {
   BrowserRouter as Router,
   Routes, Route, Link
 } from 'react-router-dom'
+import { Button, Container, Nav, Navbar } from 'react-bootstrap'
+import { MDBFooter } from 'mdb-react-ui-kit'
+import Home from './components/Home'
 
 const App = () => {
   const dispatch = useDispatch()
-  const blogFormRef = useRef()
   const user = useSelector(state => state.user)
 
   useEffect(() => {
@@ -65,61 +65,70 @@ const App = () => {
   }
 
 
-  const blogForm = () => (
-    <Togglable buttonLabel="new blog" ref={blogFormRef}>
-      <BlogForm createBlog={addBlog} />
-    </Togglable>
-  )
-
-  const addBlog = (blogObject) => {
-    blogFormRef.current.toggleVisibility()
-    dispatch(create(blogObject))
-  }
-
   return (
     <Router>
-      <div>
+      <div className='container'>
         {!user && (
           <div>
-            <h1>log in to application</h1>
-            <Notification />
-            <Error />
             <LoginForm handleLogin={handleLogin} />
           </div>
         )}
 
         {user && (
           <div>
-            <div style={{ backgroundColor: 'lightGreen' }}>
-              <div style={{ display: 'inline-block' }}><Link to={'/blogs'}>blogs</Link></div>
-              <div style={{ display: 'inline-block', marginLeft: '10px' }}><Link to={'/users'}>users</Link></div>
-              <div style={{ display: 'inline-block', marginLeft: '10px' }}>
-                <em>{user.name} logged in</em>
-                <button style={{ marginLeft: '10px' }} onClick={handleLogout}>logout</button>
-              </div>
-            </div>
-            <h1>blogs</h1>
+            <Navbar collapseOnSelect expand='lg' bg='dark' variant='dark' className='bg-body-tertiary'>
+              <Container fluid>
+                <Navbar.Brand href='/home'>Blog App</Navbar.Brand>
+                <Navbar.Toggle aria-controls='responsive-navbar-nav' />
+                <Navbar.Collapse id='responsive-navbar-nav'>
+                  <Nav className='container-fluid'>
+                    <Nav.Link href='#home' as='span'>
+                      <Link className='navlink' to={'/home'}>Home</Link>
+                    </Nav.Link>
+                    <Nav.Link  href='#' as='span'>
+                      <Link className='navlink' to={'/blogs'}>Blogs</Link>
+                    </Nav.Link>
+                    <Nav.Link href='#' as='span'>
+                      <Link className='navlink' to={'/users'}>Users</Link>
+                    </Nav.Link>
+                  </Nav>
+                  <Navbar.Text className='ml-auto'>
+                      Signed in as: {user.name}
+                  </Navbar.Text>
+                  <Button variant='light' onClick={handleLogout}>
+                      Logout
+                  </Button>
+                </Navbar.Collapse>
+              </Container>
+            </Navbar>
             <Notification />
             <Error />
             <Routes>
+              <Route path='/home' element={<Home />} />
               <Route path="/users" element={<Users />} />
               <Route path="/users/:id" element={<User />} />
               <Route path='/blogs/:id' element={<Blog />} />
               <Route path='/blogs' element={
                 <div>
-                  {blogForm()}
                   <Blogs />
                 </div>
               }/>
               <Route path="/" element={
                 <div>
-                  {blogForm()}
                   {<Blogs />}
                 </div>}
               />
             </Routes>
           </div>
         )}
+        <MDBFooter bgColor='light' className='text-center text-lg-left'>
+          <div className='text-center p-3' style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', marginTop: '50px' }}>
+            &copy; {new Date().getFullYear()} Copyright:{' '}
+            <a target='blank' className='text-dark' href='https://www.linkedin.com/in/samuli-toppi-803746269/'>
+            Samuli Toppi
+            </a>
+          </div>
+        </MDBFooter>
       </div>
     </Router>
   )

@@ -1,9 +1,10 @@
 import { useParams } from 'react-router-dom'
-import {  useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setBlogs, like, remove, comment } from '../reducers/blogReducer'
 import { setNotification } from '../reducers/notificationReducer'
 import { setError } from '../reducers/errorReducer'
 import { useState } from 'react'
+import { Button, Form } from 'react-bootstrap'
 
 const Blog = () => {
   const dispatch = useDispatch()
@@ -42,7 +43,12 @@ const Blog = () => {
     handleLike(currentBlog)
   }
 
-  const onClickAddComment = () => {
+  const submitComment = (event) => {
+    event.preventDefault()
+    if (commentString.length < 5) {
+      dispatch(setError( { message: 'Comment too short, minimum character count: 5', duration: 5 } ))
+      return
+    }
     handleComment()
   }
 
@@ -78,17 +84,27 @@ const Blog = () => {
     <div>
       <h2>{currentBlog.title} by {currentBlog.author}</h2>
       <div><a href={currentBlog.url}>{currentBlog.url}</a></div>
-      <div>{currentBlog.likes} likes <button onClick={onClickLike}>like</button></div>
+      <div>{currentBlog.likes} likes <Button variant='primary' size='sm' onClick={onClickLike}>Like</Button></div>
       <div>added by {currentBlog.user.name}</div>
       <div>
         {user && blogUser && user.name === blogUser.name && (
-          <button onClick={onClickRemove}>remove</button>
+          <Button variant='danger' size='sm' onClick={onClickRemove}>remove</Button>
         )}
       </div>
       <br />
-      <h3>comments</h3>
+      <h3>Comments</h3>
       <div>
-        <input value={commentString} onChange={ (event) => setCommentString(event.target.value) } id="comment" /><button onClick={onClickAddComment}>add comment</button>
+        <Form onSubmit={submitComment}>
+          <Form.Group className="mb-3">
+            <Form.Control
+              placeholder='Write your comment here'
+              id='comment'
+              value={commentString}
+              onChange={(event) => setCommentString(event.target.value)}
+              as="textarea" rows={3} />
+            <Button variant='primary' size='sm' type='submit'>add comment</Button>
+          </Form.Group>
+        </Form>
       </div>
       <ul>
         {currentBlog.comments.map(comment => (

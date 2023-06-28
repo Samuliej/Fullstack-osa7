@@ -3,6 +3,7 @@ import { setNotification } from '../reducers/notificationReducer'
 import { useDispatch } from 'react-redux'
 import { setError } from '../reducers/errorReducer'
 import { create } from '../reducers/blogReducer'
+import { Form, Button } from 'react-bootstrap'
 
 const BlogForm = () => {
   const [newBlogTitle, setNewBlogTitle] = useState('')
@@ -34,35 +35,32 @@ const BlogForm = () => {
   return (
     <div>
       <h2>Add a new blog</h2>
-      <form onSubmit={addBlog}>
-        title:
-        <input
-          id="title"
-          placeholder="insert title here"
+      <Form onSubmit={addBlog}>
+        <Form.Label>title:</Form.Label>
+        <Form.Control
+          id='title'
+          placeholder='insert title here'
           value={newBlogTitle}
           onChange={(event) => setNewBlogTitle(event.target.value)}
-        />{' '}
-        <br></br>
-        author:
-        <input
-          id="author"
-          placeholder="insert author here"
+        />
+        <Form.Label>author:</Form.Label>
+        <Form.Control
+          id='author'
+          placeholder='insert author here'
           value={newBlogAuthor}
           onChange={(event) => setNewBlogAuthor(event.target.value)}
-        />{' '}
-        <br></br>
-        url:
-        <input
-          id="url"
-          placeholder="insert url here"
+        />
+        <Form.Label>url:</Form.Label>
+        <Form.Control
+          id='url'
+          placeholder='insert url here'
           value={newBlogUrl}
           onChange={(event) => setNewBlogUrl(event.target.value)}
-        />{' '}
-        <br></br>
-        <button id="create-button" type="submit">
+        />
+        <Button id='create-button' type='submit' variant='primary'>
           create
-        </button>
-      </form>
+        </Button>
+      </Form>
     </div>
   )
 }

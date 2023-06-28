@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { clearNotification } from '../reducers/notificationReducer'
+import { Alert } from 'react-bootstrap'
 
 const Notification = () => {
   const dispatch = useDispatch()
@@ -19,7 +20,11 @@ const Notification = () => {
   if (!notification) {
     return <div className="empty"></div>
   } else if (notification && notification.message) {
-    return <div className="notif">{notification.message}</div>
+    return (
+      <Alert variant='success'>
+        {notification.message}
+      </Alert>
+    )
   }
 }
 
